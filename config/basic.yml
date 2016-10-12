@@ -1,0 +1,3 @@
+# Database
+mongo-db-host: "localhost"
+mongo-db-port: 27017
