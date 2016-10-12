@@ -1,3 +1,6 @@
+## Purpose
+>#### Web crawler to crawler web content relating movie comments.
+
 ### Development Environment Setup
 ===
 0. install Python 2
