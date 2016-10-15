@@ -68,3 +68,21 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Eclipse IDE Specific GitIgnore
+*.bak
+*.pydevproject
+*.swp
+*.tmp
+*~.nib
+.classpath
+.loadpath
+.metadata
+.project
+.recommenders
+.recommenders/
+.settings/
+bin/**
+local.properties
+tmp/**
+tmp/**/*
