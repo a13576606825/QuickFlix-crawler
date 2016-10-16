@@ -36,7 +36,7 @@ Arg(s): text body of html document
 if movie review json exists, return the json object
 else return None
 '''
-def parseReview(html):
+def parse_review(html):
 	soup = BeautifulSoup(html, 'html.parser')
 
 	for script_block in soup.find_all('script', attrs={'type': 'application/ld+json'}):
