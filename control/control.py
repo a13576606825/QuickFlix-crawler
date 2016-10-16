@@ -18,8 +18,8 @@ def start():
 
     # TODO
     url = 'http://variety.com/2016/film/reviews/the-magnificent-seven-review-toronto-film-festival-denzel-washington-chris-pratt-1201854625/';
-    html = remote.crawler.fetch(url)
-    review = remote.crawler.parseReview(html)
+    html = remote.crawler.fetch_html(url) # TODO catch exception
+    review = remote.crawler.parse_review(html)
     if review is None:
     	log.info('Page does not contain a movie review json')
     else:
