@@ -10,8 +10,9 @@ from bson.objectid import ObjectId
 log = logging.getLogger(__name__)
 
 def search_by_title(collection, title):
+    # this argument ^^^^^^^^^^ isn't referenced!
     db = mongo.get_db()
-    selected_collection = db.collection
+    selected_collection = db.collection # db.reviews / db.queue / db.visited
     result_list = list(selected_collection.find({'itemReviewed.name': title}))
     if not result_list:
         return 0
