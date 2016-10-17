@@ -9,26 +9,6 @@ from bson.objectid import ObjectId
 
 log = logging.getLogger(__name__)
 
-def search_reviews_by_title(title):
-    db = mongo.get_db()
-    result_list = list(db.reviews.find({'itemReviewed.name': title}))
-    if not result_list:
-        result_list = []
-    return result_list
-
-def read_next_urls():
-    db = mongo.get_db()
-    result_list = list(db.queue.find({}))
-    if not result_list:
-        result_list = []
-    return result_list
-
-def read_visited_urls():
-    db = mongo.get_db()
-    result_list = list(db.visited.find({}))
-    if not result_list:
-        result_list = []
-    return result_list
     
 '''
 def read_by_id(collection, object_id):
