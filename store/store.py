@@ -16,37 +16,24 @@ def add_review(review):
     return item_id
 
 def get_reviews(movie_title):
-    # please refactor such that this always returns a list, even though the list might be empty or only contain one element
-    results = []
-    list_of_reviews = read.search_reviews_by_title(movie_title)
-    if list_of_reviews == 0:
-        log.info("No reviews for the chosen movie title found")
-        return results
-    #for review in list_of_reviews:
-        # They should all fulfill this from the function call
-    #    if review['itemReviewed']['name'] == field:   
-    #        results.append(review)
-    return list_of_reviews
+    reviews = read.search_reviews_by_title(movie_title)
+    if len(reviews) == 0:
+        log.info("No reviews found for " + movie_title)
+    return reviews
 
 def queue_push(url):
-    # Pushes a URL to said queue
-    next_url = {'url': url}
-    item_id = write.write_next_urls(next_url)
+    item_id = write.write_next_url(url)
     return item_id
 
 def queue_pop():
-    # Returns queue of URLs to visit
-    # (Not sure if python has a queue DS. Otherwise a list is fine!)
-    url_queue = read.read_next_urls()
-    return url_queue
+    # TODO pop the first url
+    url = read.read_next_urls()
+    return url
 
 def add_to_visited(url):
-    # Adds URL to said list
-    previous_url = {'url': url}
-    item_id = write.write_visited_url(previous_url)
+    item_id = write.write_visited_url(url)
     return item_id
     
 def get_visited():
-    # Returns list (or maybe a hashmap?) of already visited URLs
-    visited_urls = read.read_visited_urls()
-    return visited_urls
+    visited = read.read_visited_urls()
+    return visited

@@ -17,7 +17,7 @@ def write_review_into_db(review):
         return 0
     return result_id
 
-def write_next_urls(url):
+def write_next_url(url):
     db = mongo.get_db()
     result_id = db.queue.insert_one(url).inserted_id
     if result_id == 0:
