@@ -28,13 +28,6 @@ else:
 		print('Found a review by ' + rev['author'][0]['name'])
 
 #url = 'http://variety.com/2016/film/reviews/the-magnificent-seven-review-toronto-film-festival-denzel-washington-chris-pratt-1201854625/'
-
-get_reviews(movie_title)
-add_review(review)
-queue_pop()
-queue_push(url)
-get_visited()
-add_to_visited(url)
 '''
 
 def run():
