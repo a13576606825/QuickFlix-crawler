@@ -9,7 +9,15 @@ from bson.objectid import ObjectId
 
 log = logging.getLogger(__name__)
 
+def search_by_title(collection, title):
+    db = mongo.get_db()
+    selected_collection = db.collection
+    result_list = list(db.selected_collection.find({'itemReviewed.name': title}))
+    if not result_list:
+        return 0
+    return result_list
 
+"""
 def read_by_id(collection, object_id):
     if not isinstance(object_id, ObjectId):
         object_id = ObjectId(object_id)
@@ -18,6 +26,7 @@ def read_by_id(collection, object_id):
     for document in cursor:
         return document
     log.info('No data found for id ' + str(object_id))
+    ['itemReviewed']['name']
     return None
 
 
@@ -50,3 +59,4 @@ def smart_query(collection, condition):
     query_condition = {"$and": smart_condition}
     debug.print_as_json(query_condition)
     return query(collection, query_condition)
+"""
