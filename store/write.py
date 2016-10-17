@@ -9,14 +9,29 @@ from bson.objectid import ObjectId
 
 log = logging.getLogger(__name__)
 
-def insert_one_into_db(collection, data):
+def write_review_into_db(review):
     db = mongo.get_db()
-    selected_collection = db.collection
-    result_id = selected_collection.insert_one(data).inserted_id
+    result_id = db.reviews.insert_one(data).inserted_id
     if result_id == 0:
-        log.error("Unable to add selected URL into database")
+        log.error("Unable to add selected review into database")
         return 0
     return result_id
+
+def write_next_urls(url):
+    db = mongo.get_db()
+    result_id = db.queue.insert_one(url).inserted_id
+    if result_id == 0:
+        log.error("Unable to add selected URL into queue")
+        return 0
+    return result_id
+
+def write_visited_url(url):
+    db = mongo.get_db()
+    result_id = db.visited.insert_one(url).inserted_id
+    if result_id == 0:
+        log.error("Unable to add selected URL into list")
+        return 0
+    return result_id    
 
 ''' Unused functionalities (as of current implementations; kept just in case for now '''
 """ 
