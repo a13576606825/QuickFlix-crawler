@@ -3,7 +3,7 @@ DB Read Service
 ---------------
 '''
 import logging
-from store import mongo
+import mongo
 from util import debug
 from bson.objectid import ObjectId
 

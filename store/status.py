@@ -4,8 +4,6 @@ DB Service for various status data
 '''
 
 import logging
-import store.read
-import store.write
 
 
 log = logging.getLogger(__name__)

@@ -4,7 +4,7 @@ DB Write Service
 '''
 
 import logging
-from store import mongo
+import mongo
 from bson.objectid import ObjectId
 
 log = logging.getLogger(__name__)
