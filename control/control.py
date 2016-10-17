@@ -25,6 +25,7 @@ def start():
     if review is None:
     	print('Page does not contain a movie review json')
     else:
+        store.store.insert_into_db('crawler', review)
     	print(review['author'][0]['name'])
 
     # parse_urls

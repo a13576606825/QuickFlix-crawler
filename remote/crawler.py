@@ -8,7 +8,6 @@ import logging
 import requests
 import re
 import json
-from remote import write
 from bs4 import BeautifulSoup
 
 
@@ -52,7 +51,6 @@ def parse_review(html):
 			review = json.loads(review_string) # TODO catch exception
 
 			if review.has_key('@type') and review.has_key('itemReviewed') and review['itemReviewed'].has_key('@type') and review['@type'] == 'Review' and review['itemReviewed']['@type'] == 'Movie':
-				store.store.insert_into_db('crawler', review)
 				return review
 			
 	return None

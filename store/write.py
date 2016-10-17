@@ -18,7 +18,7 @@ def insert_one_into_db(collection, data):
         return 0
     return result_id
 
-'''   Unused functionalities (as of current implementations; kept just in case for now'''
+''' Unused functionalities (as of current implementations; kept just in case for now '''
 """ 
     
     #existing_id = check_duplicates(selected_collection, data)

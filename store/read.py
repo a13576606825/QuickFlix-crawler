@@ -17,7 +17,7 @@ def search_by_title(collection, title):
         return 0
     return result_list
 
-"""
+'''
 def read_by_id(collection, object_id):
     if not isinstance(object_id, ObjectId):
         object_id = ObjectId(object_id)
@@ -59,4 +59,4 @@ def smart_query(collection, condition):
     query_condition = {"$and": smart_condition}
     debug.print_as_json(query_condition)
     return query(collection, query_condition)
-"""
+'''
