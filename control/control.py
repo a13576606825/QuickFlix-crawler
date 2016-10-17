@@ -25,18 +25,19 @@ def start():
         print('Page does not contain a movie review json')
     else:
         movie_title = review['itemReviewed']['name']
-        print(movie_title)
 
-        # My DB already contains the json so I'm commenting this part out
+        # Commented out for now to prevent duplicate storage of the variety.com review
+        #print('Storing a review of ' + movie_title)
         #store.store.insert_into_db('crawler', review)
 
-        # (TO FIX) Check that stored review can be retrieved
+        # Check that stored review can be retrieved
+        print('Finding reviews...')
         reviews_in_db = store.store.read_from_db('crawler', movie_title)
         if reviews_in_db == 0:
-            print('No reviews for this movie')
+            print('No reviews found for ' + movie_title)
         else:
             for rev in reviews_in_db:
-                print('Found a review by ' + review['author'][0]['name'])
+                print('Found a review by ' + rev['author'][0]['name'])
 
     # parse_urls
     urls = remote.crawler.parse_urls(html)
