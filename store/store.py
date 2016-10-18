@@ -39,12 +39,12 @@ def queue_push(url):
 
 def queue_pop():
     db = mongo.get_db()
-    url = list(db.queue.find({})) # TODO modify this to get only the first url
+    url = list(db.queue.findOne({})) # Gets the first URL
     if not url:
         # Return None if queue is empty
         return None;
     else:
-        # TODO remove that url from queue
+        db.queue.remove({}, true) # Deletes the first URL from queue
         return url
 
 
