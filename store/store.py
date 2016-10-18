@@ -39,13 +39,12 @@ def queue_push(url):
 
 def queue_pop():
     db = mongo.get_db()
-    url = list(db.queue.findOne({})) # Gets the first URL
-    if not url:
-        # Return None if queue is empty
-        return None;
+    item = db.queue.find_one()
+    if item is None:
+        return None
     else:
-        db.queue.remove({}, true) # Deletes the first URL from queue
-        return url
+        db.queue.delete_one({'_id': ObjectId(item['_id'])})
+        return item['url']
 
 
 def add_to_visited(url):
@@ -59,7 +58,8 @@ def add_to_visited(url):
 
 def get_visited():
     db = mongo.get_db()
-    visited = list(db.visited.find({}))
-    if not visited:
-        visited = []
+    visited = list(db.visited.find())
+    if visited:
+        for i, item in enumerate(visited):
+            visited[i] = item['url']
     return visited
