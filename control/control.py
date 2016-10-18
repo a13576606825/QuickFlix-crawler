@@ -6,11 +6,15 @@ Master control class
 import logging
 
 import config
+from store import store
+from remote import remote
 
 log = logging.getLogger(__name__)
 
 
 ''' Top Level Method '''
 def start():
-    from remote import remote
+    # Seed URLs
+    store.queue_push('http://variety.com/2016/film/reviews/the-magnificent-seven-review-toronto-film-festival-denzel-washington-chris-pratt-1201854625/')
+
     remote.run()

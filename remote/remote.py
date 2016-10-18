@@ -33,34 +33,48 @@ else:
 def run():
 	log.info('Running an instance of remote')
 
-	# Pop URL from queue and check if already visited
+	# Pop URL from queue
 	url = store.queue_pop()
 	if url is None:
+		print('> No urls in queue')
+		print('> Exiting')
 		return
+
+	# Check if URL is already visited
 	visited = store.get_visited()
-	if url is in visited: # TODO
+	if url in visited:
+		print('Already visited ' + url)
+		print('> Exiting')
 		return
 
 	# Fetch html from host and add URL to visited
-	html = fetch_html(url) # TODO catch exception
+	html = fetch_html(url)
 	store.add_to_visited(url)
+	print('> Currently visiting ' + url)
+	if html is None:
+		print('> Content-type not html')
+		print('> Exiting')
+		return
 
 	# Parse review and add to database
 	review = parse_review(html)
 	if review is None:
-		print('\nPage does not contain a movie review json')
+		print('> Page does not contain a movie review json')
 	else:
 		movie_title = review['itemReviewed']['name']
-		print('\nPage contains a movie review json for ' + movie_title)
 		store.add_review(review)
+		print('> Page contains a movie review json for ' + movie_title)
 
 	# Parse URLs and add to queue
 	urls = parse_urls(html)
 	if len(urls) == 0:
-		print('No urls found')
+		print('> No urls found')
 	else:
+		print('> Adding ' + str(len(urls)) + ' urls to queue')
 		for url in urls:
 			store.queue_push(url)
+
+	print('> Success')
 
 
 '''
@@ -70,14 +84,14 @@ if host responds with a html document, return its text body (prepended with the 
 else return None
 '''
 def fetch_html(url):
-	r = requests.head(url) # TODO implement a timeout and catch exceptions
+	r = requests.head(url) # TODO implement a timeout and catch exceptions (invalid host etc)
 
 	if regex_html.match(r.headers['content-type']) is None:
 		return None
 	else:
-		r = requests.get(url) # TODO implement a timeout and catch exceptions
-		host = regex_host.match(r.url).group(0)
-		return host + '\n' + r.text
+		r = requests.get(url) # TODO implement a timeout and catch exceptions. also, possible to GET via the same TCP connection as in HEAD? so then it's not 2 separate connections to the host
+		domain = regex_host.match(r.url).group(0)
+		return domain + '\n' + r.text
 
 
 '''
@@ -110,7 +124,7 @@ returns a dictionary that contains all (processed) urls in the html document
 '''
 def parse_urls(html):
 	soup = BeautifulSoup(html, 'html.parser')
-	host = html.split('\n', 1)[0]
+	domain = html.split('\n', 1)[0]
 	urls = []
 
 	for a in soup.find_all('a'):
@@ -119,7 +133,7 @@ def parse_urls(html):
 		if link is None:
 			continue
 		elif link.startswith('/'):
-			urls.append(host + link[1:])
+			urls.append(domain + link[1:])
 		elif link.lower().startswith('http://') or link.lower().startswith('https://'):
 			urls.append(link)
 
