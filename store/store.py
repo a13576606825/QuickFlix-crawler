@@ -39,7 +39,6 @@ def queue_push(url):
 
 def queue_pop():
     db = mongo.get_db()
-    url = list(db.queue.find({})) # TODO modify this to get only the first url
     if not url:
         # Return None if queue is empty
         return None;
