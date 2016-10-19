@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 log = logging.getLogger(__name__)
 regex_html = re.compile('(text\/html|application\/xhtml\+xml).*')
 regex_host = re.compile('http(|s):\/\/.+?\/')
-regex_json = re.compile('{.*}')
+regex_json = re.compile('{[\s\S]*}')
 
 
 def _thread_log(thread_name):
@@ -29,11 +29,11 @@ def _thread_log(thread_name):
 
 def run(thread_name):
 	t_print = _thread_log(thread_name)
-	
+	# t_print('==================================================')
+
 	# Pop URL from queue
 	t_print('> Getting next url from queue')
 	url = store.queue_pop()
-	# url = 'http://variety.com/author/owen-gleiberman/'
 	if url is None:
 		t_print('  > No urls in queue')
 		t_print('  > Exiting')
