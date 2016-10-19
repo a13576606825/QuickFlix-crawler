@@ -141,10 +141,12 @@ def parse_review(html):
 		find_json = regex_json.search(review_string)
 
 		if find_json is not None:
+			info.log('found a json block')
 			review_string = find_json.group(0)
 			try:
 				review = json.loads(review_string)
 			except ValueError:
+				info.log('error loading json')
 				return None
 
 			# Assumes that each page doesn't have more than one review
