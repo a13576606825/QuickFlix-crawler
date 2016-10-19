@@ -44,6 +44,13 @@ def add_review(review):
     if not movies:
         add_movie(movie_title)
 
+    # Check for duplicate reviews for the same movie
+    existing_reviews = get_reviews(movie_title)
+    for possible_duplicate in existing_reviews:
+        if review['url'] == possible_duplicate['url']:
+            log.info('Review already added into database')
+            return None
+
     # Add review into db.reviews
     item_id = db.reviews.insert_one(review).inserted_id
     if item_id == 0:
