@@ -40,8 +40,6 @@ else:
 '''
 def run(thread_name):
 	t_print = _thread_log(thread_name)
-	t_print('\n=== Running an instance of remote ================')
-
 	# Pop URL from queue
 	t_print('> Getting next url from queue')
 	url = store.queue_pop()
@@ -52,7 +50,7 @@ def run(thread_name):
 		return
 
 	# Check if URL is already visited
-	t_print('> Checking if url is already visited')
+	# t_print('> Checking if url is already visited')
 	visited = store.get_visited()
 	if url in visited:
 		t_print('  > Already visited ' + url)
@@ -68,7 +66,7 @@ def run(thread_name):
 		return
 
 	# Parse review and add to database
-	t_print('> Searching for review in html content')
+	# t_print('> Searching for review in html content')
 	review = parse_review(domain_html['html'])
 	if review is None:
 		t_print('  > Page does not contain a movie review json')
@@ -78,14 +76,15 @@ def run(thread_name):
 		t_print('  > Page contains a movie review json for ' + movie_title)
 
 	# Parse URLs and add to queue
-	t_print('> Searching for urls in html content')
+	# t_print('> Searching for urls in html content')
 	urls = parse_urls(domain_html)
 	if not urls:
 		t_print('  > No urls found')
 	else:
 		t_print('  > Adding ' + str(len(urls)) + ' urls to queue')
+		url_priority = 1 if review is not None else 2
 		for url in urls:
-			store.queue_push(url)
+			store.queue_push(url, url_priority)
 
 	t_print('> Success')
 

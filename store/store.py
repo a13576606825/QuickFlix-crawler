@@ -61,9 +61,9 @@ def get_reviews(movie_title):
     return reviews
 
 
-def queue_push(url):
+def queue_push(url, priority=1):
     db = mongo.get_db()
-    item_id = db.queue.insert_one({'url': url}).inserted_id
+    item_id = db.queue.insert_one({'url': url, 'priority':priority}).inserted_id
     if item_id == 0:
         log.error("Unable to add URL into queue")
         return None
@@ -71,13 +71,21 @@ def queue_push(url):
 
 
 def queue_pop():
+
     db = mongo.get_db()
-    item = db.queue.find_one()
-    if item is None:
-        return None
-    else:
-        db.queue.delete_one({'_id': ObjectId(item['_id'])})
-        return item['url']
+    MAX_PRIORITY = 2
+    priority = 0
+
+    while priority <= MAX_PRIORITY:
+        item = db.queue.find_one({'priority':priority})
+        if item is not None:
+            db.queue.delete_one({'_id': ObjectId(item['_id'])})
+            return item['url']
+        else:
+            priority = priority + 1
+
+    return None
+
 
 
 def add_to_visited(url):

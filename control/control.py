@@ -22,13 +22,21 @@ THREAD_PAUSE_TIME = 1 # seconds
 def start():
     # Seed URLs
     # store.empty_db()
-    # store.queue_push('http://variety.com/2016/film/reviews/the-magnificent-seven-review-toronto-film-festival-denzel-washington-chris-pratt-1201854625/')
+
+    urls = [
+    'http://variety.com/2016/film/reviews/the-magnificent-seven-review-toronto-film-festival-denzel-washington-chris-pratt-1201854625/',
+    'http://www.empireonline.com/movies/magnificent-seven-2/review/'
+    ]
+    for url in urls:
+        # give those urls highest priority
+        store.queue_push(url, 0)
+
     #store.queue_push('https://github.com')
     # store.queue_push('http://www.comp.nus.edu.sg/undergraduates/cs_cs_2014_15.html')
 
     cpu_count = multiprocessing.cpu_count()
     # cpu_count = 1
-    print('number of cpu is %s' % str(cpu_count))
+    print('Mutithreading Number is %s' % str(cpu_count))
 
     for cpu_index in range(cpu_count):
         try:
