@@ -17,67 +17,77 @@ regex_html = re.compile('(text\/html|application\/xhtml\+xml).*')
 regex_host = re.compile('http(|s):\/\/.+?\/')
 regex_json = re.compile('{.*}')
 
+
+def _thread_log(thread_name):
+	'''
+	return a logger that has thread_name as prefix
+	'''
+	def write_to_log(line):
+		print("[]"+str(thread_name)+"] " + line)
+	return write_to_log
+
 # KIV
 '''
 # Check that stored review can be retrieved
 reviews_in_db = store.get_reviews(movie_title)
 if len(reviews_in_db) == 0:
-	print('No reviews found for ' + movie_title)
+	t_print('No reviews found for ' + movie_title)
 else:
 	for rev in reviews_in_db:
-		print('Found a review by ' + rev['author'][0]['name'])
+		t_print('Found a review by ' + rev['author'][0]['name'])
 
 #url = 'http://variety.com/2016/film/reviews/the-magnificent-seven-review-toronto-film-festival-denzel-washington-chris-pratt-1201854625/'
 '''
-
-def run():
-	print('\n=== Running an instance of remote ================')
+def run(thread_name):
+	t_print = _thread_log(thread_name)
+	t_print('\n=== Running an instance of remote ================')
 
 	# Pop URL from queue
-	print('> Getting next url from queue')
+	t_print('> Getting next url from queue')
 	url = store.queue_pop()
+	# url = 'http://variety.com/author/owen-gleiberman/'
 	if url is None:
-		print('  > No urls in queue')
-		print('  > Exiting')
+		t_print('  > No urls in queue')
+		t_print('  > Exiting')
 		return
 
 	# Check if URL is already visited
-	print('> Checking if url is already visited')
+	t_print('> Checking if url is already visited')
 	visited = store.get_visited()
 	if url in visited:
-		print('  > Already visited ' + url)
-		print('  > Exiting')
+		t_print('  > Already visited ' + url)
+		t_print('  > Exiting')
 		return
 
 	# Fetch domain + html from host
-	print('> Fetching info from ' + url)
+	t_print('> Fetching info from ' + url)
 	domain_html = fetch_html(url)
 	if domain_html is None:
-		print('  > Unable to obtain html from host')
-		print('  > Exiting')
+		t_print('  > Unable to obtain html from host')
+		t_print('  > Exiting')
 		return
 
 	# Parse review and add to database
-	print('> Searching for review in html content')
+	t_print('> Searching for review in html content')
 	review = parse_review(domain_html['html'])
 	if review is None:
-		print('  > Page does not contain a movie review json')
+		t_print('  > Page does not contain a movie review json')
 	else:
 		movie_title = review['itemReviewed']['name']
 		store.add_review(review)
-		print('  > Page contains a movie review json for ' + movie_title)
+		t_print('  > Page contains a movie review json for ' + movie_title)
 
 	# Parse URLs and add to queue
-	print('> Searching for urls in html content')
+	t_print('> Searching for urls in html content')
 	urls = parse_urls(domain_html)
 	if not urls:
-		print('  > No urls found')
+		t_print('  > No urls found')
 	else:
-		print('  > Adding ' + str(len(urls)) + ' urls to queue')
+		t_print('  > Adding ' + str(len(urls)) + ' urls to queue')
 		for url in urls:
 			store.queue_push(url)
 
-	print('> Success')
+	t_print('> Success')
 
 
 '''
@@ -112,7 +122,7 @@ def fetch_html(url):
 		log.info('Content-type is not html')
 		r.close()
 		return None
-	
+
 	# Extract domain from host url
 	matches = regex_host.match(r.url)
 	if matches is None:
@@ -146,7 +156,7 @@ def parse_review(html):
 
 			if review.has_key('@type') and review.has_key('itemReviewed') and review['itemReviewed'].has_key('@type') and review['@type'] == 'Review' and review['itemReviewed']['@type'] == 'Movie':
 				return review
-			
+
 	return None
 
 

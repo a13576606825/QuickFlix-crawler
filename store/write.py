@@ -8,16 +8,14 @@ import mongo
 from bson.objectid import ObjectId
 
 log = logging.getLogger(__name__)
-
-
 ''' Unused functionalities (as of current implementations; kept just in case for now '''
-""" 
-    
+"""
+
     #existing_id = check_duplicates(selected_collection, data)
         #if existing_id != 0:
         #    print('Specified URL already exists in database')
         #    return 0
-          
+
 def check_duplicates(collection, data):
     for doc in collection.find({}):
         print(doc)

@@ -9,6 +9,12 @@ from bson.objectid import ObjectId
 
 log = logging.getLogger(__name__)
 
+COLLECTIONS = ['movies', 'queue', 'reviews','visited']
+
+def empty_db():
+    db = mongo.get_db()
+    for collection in COLLECTIONS:
+        db[collection].delete_many({})
 
 def add_movie(movie_title):
     db = mongo.get_db()
