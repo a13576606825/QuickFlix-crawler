@@ -97,6 +97,7 @@ def fetch_html(url):
 	#except requests.exceptions.Timeout:
 		# TODO Reinsert into queue to set up for a retry, don't add to visited?
 		# http://docs.python-requests.org/en/master/api/#exceptions
+		# store.queue_push(url)
 	except requests.exceptions.RequestException as e:
 		log.info('Connection error')
 		return None
@@ -141,8 +142,12 @@ def parse_review(html):
 
 		if find_json is not None:
 			review_string = find_json.group(0)
-			review = json.loads(review_string) # TODO catch exception
+			try:
+				review = json.loads(review_string)
+			except ValueError:
+				return None
 
+			# Assumes that each page doesn't have more than one review
 			if review.has_key('@type') and review.has_key('itemReviewed') and review['itemReviewed'].has_key('@type') and review['@type'] == 'Review' and review['itemReviewed']['@type'] == 'Movie':
 				return review
 
