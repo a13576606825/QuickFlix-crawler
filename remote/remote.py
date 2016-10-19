@@ -23,24 +23,13 @@ def _thread_log(thread_name):
 	return a logger that has thread_name as prefix
 	'''
 	def write_to_log(line):
-		print("[]"+str(thread_name)+"] " + line)
+		print("["+str(thread_name)+"] " + line)
 	return write_to_log
 
-# KIV
-'''
-# Check that stored review can be retrieved
-reviews_in_db = store.get_reviews(movie_title)
-if len(reviews_in_db) == 0:
-	t_print('No reviews found for ' + movie_title)
-else:
-	for rev in reviews_in_db:
-		t_print('Found a review by ' + rev['author'][0]['name'])
 
-#url = 'http://variety.com/2016/film/reviews/the-magnificent-seven-review-toronto-film-festival-denzel-washington-chris-pratt-1201854625/'
-'''
 def run(thread_name):
 	t_print = _thread_log(thread_name)
-	t_print('\n=== Running an instance of remote ================')
+	t_print('=== Running an instance of remote ================')
 
 	# Pop URL from queue
 	t_print('> Getting next url from queue')
@@ -74,8 +63,8 @@ def run(thread_name):
 		t_print('  > Page does not contain a movie review json')
 	else:
 		movie_title = review['itemReviewed']['name']
-		store.add_review(review)
 		t_print('  > Page contains a movie review json for ' + movie_title)
+		store.add_review(review)
 
 	# Parse URLs and add to queue
 	t_print('> Searching for urls in html content')
