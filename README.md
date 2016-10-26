@@ -25,7 +25,9 @@
 * **Database**: MongoDB
 * **Others**:
   * pymongo==3.0.1
-	* PyYaml==3.11
+  * PyYaml==3.11
+  * beautifulsoup4==4.5.1
+  * networkx==1.11
   * Requests==2.9.1
 
 
