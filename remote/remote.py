@@ -58,16 +58,20 @@ def run(thread_name):
 	# Parse review and add to database
 	# t_print('> Searching for review in html content')
 	review = parse_review(domain_html['html'])
+	urls = parse_urls(domain_html)
+	
 	if review is None:
 		t_print('  > Page does not contain a movie review json')
 	else:
 		movie_title = review['itemReviewed']['name']
 		t_print('  > Page contains a movie review json for ' + movie_title)
-		store.add_review(review)
+		success = store.add_review(review)
+		if success:
+			store.add_outgoing_links(url, urls) # add all outgoing links
 
 	# Parse URLs and add to queue
 	# t_print('> Searching for urls in html content')
-	urls = parse_urls(domain_html)
+
 	if not urls:
 		t_print('  > No urls found')
 	else:

@@ -10,7 +10,7 @@ import pymongo
 
 log = logging.getLogger(__name__)
 
-COLLECTIONS = ['movies', 'queue', 'reviews','visited']
+COLLECTIONS = ['movies', 'queue', 'reviews','visited', 'links']
 
 def empty_db():
     db = mongo.get_db()
@@ -35,7 +35,6 @@ def get_movies():
             movies[i] = item['title']
     return movies
 
-
 def add_review(review):
     db = mongo.get_db()
 
@@ -59,6 +58,17 @@ def add_review(review):
         return None
     return item_id
 
+def add_outgoing_links(url, outgoing_links):
+    db = mongo.get_db()
+    item_id = db.links.insert_one({'key':url, 'links':outgoing_links}).inserted_id
+
+def get_outgoing_links():
+    db = mongo.get_db()
+    return list(db.links.find())
+    
+def updatePageRank(url, rank):
+    db = mongo.get_db()
+    db.reviews.update_one({'url':url}, {'$set': {'rank': rank}})
 
 # Returns a list of all reviews (json objects) for a particular movie
 def get_reviews(movie_title):
