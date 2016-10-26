@@ -37,11 +37,9 @@ def start():
         # give those urls highest priority
         store.queue_push(url, 0)
 
-    # TODO single thread for now
-    while True:
-    	remote.run(1)
-
     cpu_count = multiprocessing.cpu_count()
+    # TODO single thread for now
+    cpu_count = 1
     print('Mutithreading Number is %s' % str(cpu_count))
 
     for cpu_index in range(cpu_count):
@@ -64,6 +62,7 @@ def _single_crawler(thread_name):
     while True:
         try:
             remote.run(thread_name)
-        except:
+        except Exception as e:
             print('[%s] (BUG!!!)Unhandled exception occurs' % thread_name)
+            print(e)
         time.sleep(THREAD_PAUSE_TIME)

@@ -6,6 +6,7 @@ DB Management
 import logging
 import mongo
 from bson.objectid import ObjectId
+import pymongo
 
 log = logging.getLogger(__name__)
 
@@ -78,20 +79,16 @@ def queue_push(url, priority=1):
 
 
 def queue_pop():
-
     db = mongo.get_db()
     MAX_PRIORITY = 2
     priority = 0
 
-    while priority <= MAX_PRIORITY:
-        item = db.queue.find_one({'priority':priority})
-        if item is not None:
-            db.queue.delete_one({'_id': ObjectId(item['_id'])})
-            return item['url']
-        else:
-            priority = priority + 1
-
-    return None
+    item = db.queue.find_one_and_delete({}, sort=[('priority', pymongo.ASCENDING)])
+    if item is not None:
+        # db.queue.delete_one({'_id': ObjectId(item['_id'])})
+        return item['url'], item['priority']
+    else:
+        return None, None
 
 
 

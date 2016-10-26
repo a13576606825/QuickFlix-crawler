@@ -33,10 +33,10 @@ def run(thread_name):
 
 	# Pop URL from queue
 	t_print('> Getting next url from queue')
-	url = store.queue_pop()
+	url, url_priority = store.queue_pop()
 	if url is None:
 		t_print('  > No urls in queue')
-		t_print('  > Exiting')
+		# t_print('  > Exiting')
 		return
 
 	# Check if URL is already visited
@@ -44,7 +44,7 @@ def run(thread_name):
 	visited = store.get_visited()
 	if url in visited:
 		t_print('  > Already visited ' + url)
-		t_print('  > Exiting')
+		# t_print('  > Exiting')
 		return
 
 	# Fetch domain + html from host
@@ -52,7 +52,7 @@ def run(thread_name):
 	domain_html = fetch_html(url)
 	if domain_html is None:
 		t_print('  > Unable to obtain html from host')
-		t_print('  > Exiting')
+		# t_print('  > Exiting')
 		return
 
 	# Parse review and add to database
@@ -72,11 +72,11 @@ def run(thread_name):
 		t_print('  > No urls found')
 	else:
 		t_print('  > Adding ' + str(len(urls)) + ' urls to queue')
-		url_priority = 1 if review is not None else 2
+		next_url_priority = 1 if review is not None else (url_priority+1)
 		for url in urls:
-			store.queue_push(url, url_priority)
+			store.queue_push(url, next_url_priority)
 
-	t_print('> Success')
+	# t_print('> Success')
 
 
 '''

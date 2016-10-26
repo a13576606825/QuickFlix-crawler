@@ -6,7 +6,6 @@ log = logging.getLogger(__name__)
 
 _db = None
 
-
 def get_db():
     global _db
     if _db is None:
