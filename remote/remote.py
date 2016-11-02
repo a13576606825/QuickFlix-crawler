@@ -10,6 +10,8 @@ from store import store
 import requests
 import re
 import json
+import urllib2
+
 from bs4 import BeautifulSoup
 
 log = logging.getLogger(__name__)
@@ -157,7 +159,18 @@ def parse_review(html):
 
 	return None
 
+'''
+Arg(s): Movie name, space separated
 
+return a dictionary with the movie info
+'''
+def retrieve_movie_info(movie):
+	processed_name = movie.replace(" ", "+")
+	query_link = "http://www.omdbapi.com/?t=" + processed_name + "&y=&plot=full&r=json"
+	data = json.load(urllib2.urlopen(query_link))
+	return data
+	
+	
 '''
 Arg(s): dictionary containing domain + text body of html document
 
@@ -167,7 +180,9 @@ def parse_urls(domain_html):
 	domain = domain_html['domain']
 	soup = BeautifulSoup(domain_html['html'], 'html.parser')
 	urls = []
-
+	movie_info = retrieve_movie_info("Casino Royale")
+	print "Movie info"
+	print movie_info
 	for a in soup.find_all('a'):
 		link = a.get('href')
 
@@ -179,3 +194,5 @@ def parse_urls(domain_html):
 			urls.append(link)
 
 	return urls
+
+
