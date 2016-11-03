@@ -4,7 +4,8 @@ Crawling Service
 '''
 
 import logging
-
+urllib3_logger = logging.getLogger('requests')
+urllib3_logger.setLevel(logging.CRITICAL)
 from store import store
 
 import requests
@@ -27,6 +28,14 @@ def _thread_log(thread_name):
 	def write_to_log(line):
 		print("["+str(thread_name)+"] " + line)
 	return write_to_log
+
+def checkValidity(url):
+	domain_html = fetch_html(url)
+	if domain_html is None:
+		return False
+	review = parse_review(domain_html['html'])
+	if review:
+		return True
 
 
 def run(thread_name):
@@ -158,33 +167,6 @@ def parse_review(html):
 				return review
 
 	return None
-
-'''
-Arg(s): Movie name, space separated
-
-return a dictionary with the movie info
-'''
-def retrieve_movie_info(movie):
-	processed_name = movie.replace(" ", "+")
-	try:
-		# query_link = "http://www.omdbapi.com/?t=" + processed_name + "&y=&plot=full&r=json"
-		url = "http://www.omdbapi.com"
-		params = {
-			't': processed_name,
-			'plot': 'full'
-			'r' : 'json'
-		}
-		res = requests.get(url=url, params=params)
-		data = json.loads(res.text)
-		return data
-
-	except ValueError as e:
-		log.info('%s info cannot be parsed' % movie)
-		return None
-	except requests.exceptions.RequestException as e:
-    	log.info('%s info cannot be parsed' % movie)
-		return None
-
 
 '''
 Arg(s): dictionary containing domain + text body of html document

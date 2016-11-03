@@ -8,9 +8,12 @@ import mongo
 from bson.objectid import ObjectId
 import pymongo
 
+import json
+import requests
+
 log = logging.getLogger(__name__)
 
-COLLECTIONS = ['movies', 'queue', 'reviews','visited', 'links']
+COLLECTIONS = ['movies', 'queue', 'reviews','visited', 'links', 'movieInfo']
 
 def empty_db():
     db = mongo.get_db()
@@ -25,6 +28,14 @@ def add_movie(movie_title):
         return None
     return item_id
 
+def add_movie_info(movie_title, movie_info):
+    db = mongo.get_db()
+    movie_info['key'] = movie_title
+    item_id = db.movieInfo.insert_one(movie_info).inserted_id
+    if item_id == 0:
+        log.error("Unable to add movie info")
+        return None
+    return item_id
 
 # Returns a list of all movie titles
 def get_movies():
@@ -43,6 +54,8 @@ def add_review(review):
     movies = list(db.movies.find({'title': movie_title}))
     if not movies:
         add_movie(movie_title)
+        movie_info = retrieve_movie_info(movie_title)
+        add_movie_info(movie_title, movie_info)
 
     # Check for duplicate reviews for the same movie
     existing_reviews = get_reviews(movie_title)
@@ -65,7 +78,7 @@ def add_outgoing_links(url, outgoing_links):
 def get_outgoing_links():
     db = mongo.get_db()
     return list(db.links.find())
-    
+
 def updatePageRank(url, rank):
     db = mongo.get_db()
     db.reviews.update_one({'url':url}, {'$set': {'rank': rank}})
@@ -74,8 +87,8 @@ def updatePageRank(url, rank):
 def get_reviews(movie_title):
     db = mongo.get_db()
     reviews = list(db.reviews.find({'itemReviewed.name': movie_title}))
-    if not reviews:
-        log.info("No reviews found for " + movie_title)
+    # if not reviews:
+    #     log.info("No reviews found for " + movie_title)
     return reviews
 
 
@@ -118,3 +131,30 @@ def get_visited():
         for i, item in enumerate(visited):
             visited[i] = item['url']
     return visited
+
+
+'''
+Arg(s): Movie name, space separated
+
+return a dictionary with the movie info
+'''
+def retrieve_movie_info(movie_title):
+	processed_name = movie_title.replace(" ", "+")
+	try:
+		# query_link = "http://www.omdbapi.com/?t=" + processed_name + "&y=&plot=full&r=json"
+		url = "http://www.omdbapi.com"
+		params = {
+			't': processed_name,
+			'plot': 'short',
+			'r' : 'json'
+		}
+		res = requests.get(url=url, params=params)
+		data = json.loads(res.text)
+		return data
+
+	except ValueError as e:
+		log.info(movie_title + 'info cannot be parsed')
+		return None
+	except requests.exceptions.RequestException as e:
+		log.info(movie_title + 'info cannot be retrieved')
+		return None
