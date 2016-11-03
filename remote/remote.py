@@ -61,7 +61,7 @@ def run(thread_name):
 	# t_print('> Searching for review in html content')
 	review = parse_review(domain_html['html'])
 	urls = parse_urls(domain_html)
-	
+
 	if review is None:
 		t_print('  > Page does not contain a movie review json')
 	else:
@@ -166,11 +166,26 @@ return a dictionary with the movie info
 '''
 def retrieve_movie_info(movie):
 	processed_name = movie.replace(" ", "+")
-	query_link = "http://www.omdbapi.com/?t=" + processed_name + "&y=&plot=full&r=json"
-	data = json.load(urllib2.urlopen(query_link))
-	return data
-	
-	
+	try:
+		# query_link = "http://www.omdbapi.com/?t=" + processed_name + "&y=&plot=full&r=json"
+		url = "http://www.omdbapi.com"
+		params = {
+			't': processed_name,
+			'plot': 'full'
+			'r' : 'json'
+		}
+		res = requests.get(url=url, params=params)
+		data = json.loads(res.text)
+		return data
+
+	except ValueError as e:
+		log.info('%s info cannot be parsed' % movie)
+		return None
+	except requests.exceptions.RequestException as e:
+    	log.info('%s info cannot be parsed' % movie)
+		return None
+
+
 '''
 Arg(s): dictionary containing domain + text body of html document
 
@@ -180,9 +195,6 @@ def parse_urls(domain_html):
 	domain = domain_html['domain']
 	soup = BeautifulSoup(domain_html['html'], 'html.parser')
 	urls = []
-	movie_info = retrieve_movie_info("Casino Royale")
-	print "Movie info"
-	print movie_info
 	for a in soup.find_all('a'):
 		link = a.get('href')
 
@@ -194,5 +206,3 @@ def parse_urls(domain_html):
 			urls.append(link)
 
 	return urls
-
-
