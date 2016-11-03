@@ -51,7 +51,6 @@ def run(thread_name):
 		return
 
 	# Check if URL is already visited
-	# t_print('> Checking if url is already visited')
 	visited = store.get_visited()
 	if url in visited:
 		t_print('  > Already visited ' + url)
@@ -69,17 +68,21 @@ def run(thread_name):
 	# Parse review and add to database
 	# t_print('> Searching for review in html content')
 	review = parse_review(domain_html['html'])
+	## append url attribute
+
 	urls = parse_urls(domain_html)
 
 	if review is None:
 		t_print('  > Page does not contain a movie review json')
 	else:
+		if 'url' not in review:
+			review['url'] = url
 		movie_title = review['itemReviewed']['name']
 		t_print('  > Page contains a movie review json for ' + movie_title)
 		success = store.add_review(review)
+		t_print('> add review successfully')
 		if success:
 			store.add_outgoing_links(url, urls) # add all outgoing links
-
 	# Parse URLs and add to queue
 	# t_print('> Searching for urls in html content')
 
@@ -150,7 +153,6 @@ else return None
 '''
 def parse_review(html):
 	soup = BeautifulSoup(html, 'html.parser')
-
 	for script_block in soup.find_all('script', attrs={'type': 'application/ld+json'}):
 		review_string = script_block.string
 		find_json = regex_json.search(review_string)
@@ -160,10 +162,11 @@ def parse_review(html):
 			try:
 				review = json.loads(review_string)
 			except ValueError:
+				log.warning('parse review value error')
 				return None
 
 			# Assumes that each page doesn't have more than one review
-			if review.has_key('@type') and review.has_key('itemReviewed') and review['itemReviewed'].has_key('@type') and review['@type'] == 'Review' and review['itemReviewed']['@type'] == 'Movie':
+			if review.has_key('@type') and review.has_key('itemReviewed') and review['itemReviewed'].has_key('name') and review['itemReviewed'].has_key('@type') and review['@type'] == 'Review' and review['itemReviewed']['@type'] == 'Movie':
 				return review
 
 	return None

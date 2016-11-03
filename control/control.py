@@ -7,6 +7,8 @@ import logging
 import threading
 import time
 import multiprocessing
+import traceback
+import sys
 
 
 import config
@@ -20,35 +22,25 @@ THREAD_PAUSE_TIME = 1 # seconds
 
 ''' Top Level Method '''
 def start():
-    # store.empty_db() # TODO uncommented for now
 
-    # # Seed URLs
-    # urls = [
-    # 	'http://variety.com/2016/film/reviews/the-magnificent-seven-review-toronto-film-festival-denzel-washington-chris-pratt-1201854625/',
-    # 	'http://www.empireonline.com/movies/magnificent-seven-2/review/',
-    # 	'http://www.nytimes.com/2016/09/23/movies/magnificent-seven-review-denzel-washington.html',
-    # 	'http://www.avclub.com/review/magnificent-seven-gets-uninspired-remake-242722',
-    # ] # TODO uncommented for now
-    # urls = [
-
-    # ] # TODO uncommented for now
+    store.empty_db()
     f = open(SEED_FILE_PATH, 'r')
     urls = f.read().splitlines()
 
-    for url in urls:
-        if remote.checkValidity(url):
-            print("seeeeeeee:      "+url)
-        else:
-            print('oooooooops')
-    return
+    # for url in urls:
+    #     if remote.checkValidity(url):
+    #         print("seeeeeeee:      "+url)
+    #     else:
+    #         print('oooooooops')
+    # return
 
     for url in urls:
         # give those urls highest priority
         store.queue_push(url, 0)
 
     cpu_count = multiprocessing.cpu_count()
-    # TODO single thread for now
-    cpu_count = 1
+    # cpu_count = 1
+    
     print('Mutithreading Number is %s' % str(cpu_count))
 
     for cpu_index in range(cpu_count):
@@ -63,7 +55,6 @@ def start():
     while True:
         time.sleep(1)
 
-
 def _single_crawler(thread_name):
     '''
     one threading function that calls remote run constantly
@@ -74,5 +65,6 @@ def _single_crawler(thread_name):
         except Exception as e:
             print('[%s] (BUG!!!)Unhandled exception occurs' % thread_name)
             print(e)
+            print(traceback.format_exc())
         time.sleep(THREAD_PAUSE_TIME)
-        break;
+        # break;

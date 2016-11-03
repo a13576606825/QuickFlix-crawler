@@ -48,9 +48,8 @@ def get_movies():
 
 def add_review(review):
     db = mongo.get_db()
-
     # If movie title is not already in db.movies, add it
-    movie_title = review['itemReviewed']['name'] # TODO catch exception (malformed json)
+    movie_title = review['itemReviewed']['name']
     movies = list(db.movies.find({'title': movie_title}))
     if not movies:
         add_movie(movie_title)
