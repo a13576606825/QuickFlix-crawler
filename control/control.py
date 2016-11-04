@@ -9,7 +9,7 @@ import time
 import multiprocessing
 import traceback
 import sys
-
+import random
 
 import config
 from store import store
@@ -18,7 +18,6 @@ from remote import remote
 log = logging.getLogger(__name__)
 
 SEED_FILE_PATH = 'seed.txt'
-THREAD_PAUSE_TIME = 1 # seconds
 
 ''' Top Level Method '''
 def start():
@@ -40,7 +39,7 @@ def start():
 
     cpu_count = multiprocessing.cpu_count()
     # cpu_count = 1
-    
+
     print('Mutithreading Number is %s' % str(cpu_count))
 
     for cpu_index in range(cpu_count):
@@ -66,5 +65,6 @@ def _single_crawler(thread_name):
             print('[%s] (BUG!!!)Unhandled exception occurs' % thread_name)
             print(e)
             print(traceback.format_exc())
-        time.sleep(THREAD_PAUSE_TIME)
+        # randomize thread sleep time to avoid resource competition
+        time.sleep(random.randrange(0.1, 1))
         # break;
