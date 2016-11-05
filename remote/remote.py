@@ -20,12 +20,6 @@ regex_html = re.compile('(text\/html|application\/xhtml\+xml).*')
 regex_host = re.compile('http(|s):\/\/.+?\/')
 regex_json = re.compile('{[\s\S]*}')
 
-# return a logger that has thread_name as prefix
-def _thread_log(thread_name):
-	def write_to_log(line):
-		print("["+str(thread_name)+"] " + line)
-	return write_to_log
-
 def check_validity(url):
 	domain_html = fetch_html(url)
 	if domain_html is None:
@@ -34,8 +28,17 @@ def check_validity(url):
 	if review is not None:
 		return True
 
+# return a logger that has thread_name as prefix
+def _thread_log(thread_name):
+	def write_to_log(line):
+		print("["+str(thread_name)+"] " + line)
+	return write_to_log
+
 def run(thread_name):
 	t_print = _thread_log(thread_name)
+
+	# To easily trace when a new thread begins
+	t_print('==========')
 
 	# Pop URL from queue
 	url, url_priority = store.queue_pop()
@@ -71,7 +74,7 @@ def run(thread_name):
 			t_print('> Added review successfully')
 			# Add all outgoing links
 			store.add_outgoing_links(url, urls)
-	
+
 	# Add URLs to queue
 	if not urls:
 		t_print('> No urls found')
