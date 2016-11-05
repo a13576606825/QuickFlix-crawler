@@ -1,8 +1,5 @@
 import logging
 
-__author__ = 'xinzzhou'
-
-
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 

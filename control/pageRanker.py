@@ -9,6 +9,7 @@ log = logging.getLogger(__name__)
 def run():
     all_outgoing_links_pairs = store.get_outgoing_links()
     effective_links = get_effective_links(all_outgoing_links_pairs)
+    print('number of effective_links:' + str(len(effective_links)))
     G = nx.DiGraph()
 
     for pair in all_outgoing_links_pairs:
@@ -17,9 +18,8 @@ def run():
             if outgoing_link in effective_links:
                 G.add_edge(key,outgoing_link)
     # print(G.nodes())
-    print(G.edges())
     pageRanks = nx.pagerank(G)
-    print(pageRanks)
+    # print(pageRanks)
     if pageRanks is not None:
         for url, rank in pageRanks.iteritems():
             # key is the review url, value is the rank
