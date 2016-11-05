@@ -58,12 +58,18 @@ def run(thread_name):
 		t_print('> Unable to obtain html from ' + url)
 		return
 
+	this_domain = domain_html['domain']
+	this_html = domain_html['html']
+	if not store.should_visit_domain(this_domain):
+		t_print('> this_domain should not be fetched: ' + this_domain)
+		return
 	# Parse review and URLs
-	review = parse_review(domain_html['html'])
+	review = parse_review(this_html)
 	urls = parse_urls(domain_html)
-
+	found_review = review is not None
+	store.update_visited_domain(domain_html['domain'], found_review)
 	# Add review to database
-	if review is None:
+	if not found_review:
 		t_print('> Page does not contain a movie review json')
 	else:
 		movie_title = review['itemReviewed']['name']
@@ -127,6 +133,7 @@ def fetch_html(url):
 
 	# Download response content
 	domain = matches.group(0)
+
 	html = r.text
 	r.close()
 	return {'domain': domain, 'html': html}

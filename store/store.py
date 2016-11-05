@@ -13,9 +13,32 @@ import requests
 
 log = logging.getLogger(__name__)
 
-COLLECTIONS = ['movies', 'reviews', 'queue', 'visited', 'links']
+COLLECTIONS = ['movies', 'reviews', 'queue', 'visited', 'links', 'visitedDomain']
 
-# Clears all data from the db
+# update visisted domain info
+def update_visited_domain(domain, success):
+    db = mongo.get_db()
+    find_domain = db.visitedDomain.find_one({'domain':domain})
+    success_incremental_value = 1 if success else 0
+    if find_domain:
+        db.visitedDomain.update_one(
+        {'domain':domain},
+        {'$inc': {'total':1,'success': success_incremental_value}}, upsert=False)
+    else:
+        db.visitedDomain.insert_one({'domain':domain, 'total':1, 'success': success_incremental_value})
+
+
+def should_visit_domain(domain):
+    db = mongo.get_db()
+    find_domain = db.visitedDomain.find_one({'domain':domain})
+    if find_domain:
+        total = find_domain['total']
+        success = find_domain['success']
+        if success == 0 and total > 500 or success*1.0/total < 0.00001:
+            return False
+    return True
+
+# Clears all data from db
 def empty_db():
     db = mongo.get_db()
     for collection in COLLECTIONS:
