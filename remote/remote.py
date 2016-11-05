@@ -6,13 +6,13 @@ Crawling Service
 import logging
 urllib3_logger = logging.getLogger('requests')
 urllib3_logger.setLevel(logging.CRITICAL)
+
 from store import store
 
 import requests
 import re
 import json
 import urllib2
-
 from bs4 import BeautifulSoup
 
 log = logging.getLogger(__name__)
@@ -20,82 +20,66 @@ regex_html = re.compile('(text\/html|application\/xhtml\+xml).*')
 regex_host = re.compile('http(|s):\/\/.+?\/')
 regex_json = re.compile('{[\s\S]*}')
 
-
+# return a logger that has thread_name as prefix
 def _thread_log(thread_name):
-	'''
-	return a logger that has thread_name as prefix
-	'''
 	def write_to_log(line):
 		print("["+str(thread_name)+"] " + line)
 	return write_to_log
 
-def checkValidity(url):
+def check_validity(url):
 	domain_html = fetch_html(url)
 	if domain_html is None:
 		return False
 	review = parse_review(domain_html['html'])
-	if review:
+	if review is not None:
 		return True
-
 
 def run(thread_name):
 	t_print = _thread_log(thread_name)
-	# t_print('==================================================')
 
 	# Pop URL from queue
-	t_print('> Getting next url from queue')
 	url, url_priority = store.queue_pop()
 	if url is None:
-		t_print('  > No urls in queue')
-		# t_print('  > Exiting')
+		t_print('> No urls in queue')
 		return
 
 	# Check if URL is already visited
 	visited = store.get_visited()
 	if url in visited:
-		t_print('  > Already visited ' + url)
-		# t_print('  > Exiting')
+		t_print('> Already visited ' + url)
 		return
 
 	# Fetch domain + html from host
-	t_print('> Fetching info from ' + url)
 	domain_html = fetch_html(url)
 	if domain_html is None:
-		t_print('  > Unable to obtain html from host')
-		# t_print('  > Exiting')
+		t_print('> Unable to obtain html from ' + url)
 		return
 
-	# Parse review and add to database
-	# t_print('> Searching for review in html content')
+	# Parse review and URLs
 	review = parse_review(domain_html['html'])
-	## append url attribute
-
 	urls = parse_urls(domain_html)
 
+	# Add review to database
 	if review is None:
-		t_print('  > Page does not contain a movie review json')
+		t_print('> Page does not contain a movie review json')
 	else:
+		movie_title = review['itemReviewed']['name']
+		t_print('> Page contains a movie review json for ' + movie_title)
 		if 'url' not in review:
 			review['url'] = url
-		movie_title = review['itemReviewed']['name']
-		t_print('  > Page contains a movie review json for ' + movie_title)
-		success = store.add_review(review)
-		t_print('> add review successfully')
-		if success:
-			store.add_outgoing_links(url, urls) # add all outgoing links
-	# Parse URLs and add to queue
-	# t_print('> Searching for urls in html content')
-
+		if store.add_review(review):
+			t_print('> Added review successfully')
+			# Add all outgoing links
+			store.add_outgoing_links(url, urls)
+	
+	# Add URLs to queue
 	if not urls:
-		t_print('  > No urls found')
+		t_print('> No urls found')
 	else:
-		t_print('  > Adding ' + str(len(urls)) + ' urls to queue')
+		t_print('> Adding ' + str(len(urls)) + ' urls to queue')
 		next_url_priority = 1 if review is not None else (url_priority+1)
 		for url in urls:
 			store.queue_push(url, next_url_priority)
-
-	# t_print('> Success')
-
 
 '''
 Arg(s): url
@@ -143,7 +127,6 @@ def fetch_html(url):
 	html = r.text
 	r.close()
 	return {'domain': domain, 'html': html}
-
 
 '''
 Arg(s): text body of html document
