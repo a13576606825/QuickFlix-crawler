@@ -13,7 +13,7 @@ import requests
 
 log = logging.getLogger(__name__)
 
-COLLECTIONS = ['movies', 'movieInfo', 'reviews', 'queue', 'visited', 'links']
+COLLECTIONS = ['movies', 'reviews', 'queue', 'visited', 'links']
 
 # Clears all data from the db
 def empty_db():
@@ -21,12 +21,12 @@ def empty_db():
     for collection in COLLECTIONS:
         db[collection].delete_many({})
 
-# Adds movie title into db
-def add_movie(movie_title):
+# Adds movie title and info into db
+def add_movie(movie_title, movie_info):
     db = mongo.get_db()
-    item_id = db.movies.insert_one({'title': movie_title}).inserted_id
+    item_id = db.movies.insert_one({'title': movie_title, 'info': movie_info}).inserted_id
     if item_id == 0:
-        log.error("Unable to add movie title")
+        log.error("Unable to add movie title and info")
         return None
     return item_id
 
@@ -39,20 +39,19 @@ def get_movies():
             movies[i] = item['title']
     return movies
 
-# Adds movie info into db
-def add_movie_info(movie_title, movie_info):
+# Returns movie info for a particular movie
+def get_movie_info(movie_titie):
     db = mongo.get_db()
-    movie_info['key'] = movie_title
-    item_id = db.movieInfo.insert_one(movie_info).inserted_id
-    if item_id == 0:
-        log.error("Unable to add movie info")
+    movies = list(db.movies.find({'title': movie_title}))
+    if movies:
+        return movies[0]['info']
+    else:
+        log.info("No info found for " + movie_title)
         return None
-    return item_id
 
 # Returns a json with the movie info, fetched from omdbapi.com
 def retrieve_movie_info(movie_title):
     processed_name = movie_title.replace(" ", "+")
-
     try:
         # query_link = "http://www.omdbapi.com/?t=" + processed_name + "&y=&plot=full&r=json"
         url = "http://www.omdbapi.com"
@@ -62,26 +61,28 @@ def retrieve_movie_info(movie_title):
             'r' : 'json'
         }
         res = requests.get(url=url, params=params)
-        data = json.loads(res.text)
-        return data
+        movie_info = json.loads(res.text)
+        return movie_info
     except ValueError as e:
-        log.info(movie_title + 'info cannot be parsed')
+        log.info(movie_title + ' info cannot be parsed')
         return None
     except requests.exceptions.RequestException as e:
-        log.info(movie_title + 'info cannot be retrieved')
+        log.info(movie_title + ' info cannot be retrieved')
         return None
 
 # Adds review into db
 def add_review(review):
     db = mongo.get_db()
 
-    # If movie title is not already in db.movies, add it
+    # If movie title is not already in db.movies, retrieve movie info and add it
     movie_title = review['itemReviewed']['name']
     movies = list(db.movies.find({'title': movie_title}))
     if not movies:
-        add_movie(movie_title)
+        # Add into db.movies only when movie info is available
+        # This means that if retrieving movie info is unsuccessful, there might be reviews of the movie in db.reviews, but no record of the movie title and info in db.movies
         movie_info = retrieve_movie_info(movie_title)
-        add_movie_info(movie_title, movie_info)
+        if movie_info is not None:
+            add_movie(movie_title, movie_info)
 
     # Check for duplicate reviews for the same movie
     existing_reviews = get_reviews(movie_title)
@@ -108,7 +109,7 @@ def get_reviews(movie_title):
 
 def queue_push(url, priority=1):
     db = mongo.get_db()
-    item_id = db.queue.insert_one({'url': url, 'priority':priority}).inserted_id
+    item_id = db.queue.insert_one({'url': url, 'priority': priority}).inserted_id
     if item_id == 0:
         log.error("Unable to add URL into queue")
         return None
@@ -152,4 +153,4 @@ def get_outgoing_links():
 
 def updatePageRank(url, rank):
     db = mongo.get_db()
-    db.reviews.update_one({'url':url}, {'$set': {'rank': rank}})
+    db.reviews.update_one({'url': url}, {'$set': {'rank': rank}})
