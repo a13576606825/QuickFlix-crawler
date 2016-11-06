@@ -47,11 +47,13 @@ def empty_db():
 # Adds movie title and info into db
 def add_movie(movie_title, movie_info):
     db = mongo.get_db()
-    item_id = db.movies.insert_one({'title': movie_title, 'info': movie_info}).inserted_id
-    if item_id == 0:
-        log.error("Unable to add movie title and info")
+    exist = db.movies.find_one({'title': movie_title})
+    if exist:
         return None
-    return item_id
+    else:
+        item_id = db.movies.insert_one({'title': movie_title, 'info': movie_info}).inserted_id
+        return item_id
+
 
 # Returns a list of all movie titles
 def get_movies():
@@ -115,6 +117,7 @@ def add_review(review):
             return None
 
     # Add review into db.reviews
+    review['rank'] = 0 # give initial pageRank
     item_id = db.reviews.insert_one(review).inserted_id
     if item_id == 0:
         log.error("Unable to add review")

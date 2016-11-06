@@ -36,13 +36,14 @@ def start():
         # give those urls highest priority
         store.queue_push(url, 0)
 
-    #''' Using this to test the program because multithreading gives errors
-    while True:
-        remote.run(1);
-    #'''
+
 
     cpu_count = multiprocessing.cpu_count()
+
+    # Uncomment this to test the program in single thread
     # cpu_count = 1
+
+
     print('Mutithreading Number is %s' % str(cpu_count))
 
     for cpu_index in range(cpu_count):
@@ -68,4 +69,4 @@ def _single_crawler(thread_name):
             print(traceback.format_exc())
 
         # randomize thread sleep time to avoid resource competition
-        time.sleep(random.randrange(0.1, 1))
+        time.sleep(random.uniform(0, 1))
